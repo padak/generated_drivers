@@ -1,0 +1,59 @@
+# EditorConfig for mPOHODA Driver
+# Helps maintain consistent code formatting across different editors and IDEs
+# More info: https://editorconfig.org
+
+# Root configuration file
+root = true
+
+# Default settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Python files
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# TOML files
+[*.toml]
+indent_style = space
+indent_size = 2
+
+# Markdown files
+[*.md]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+
+# Shell scripts
+[*.sh]
+indent_style = space
+indent_size = 2
+
+# Makefile (uses tabs)
+[Makefile]
+indent_style = tab
+
+# Configuration files
+[*.{cfg,conf,config}]
+indent_style = space
+indent_size = 2
+
+# Text files
+[*.txt]
+indent_style = space
+indent_size = 2

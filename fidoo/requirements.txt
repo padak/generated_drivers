@@ -1,0 +1,16 @@
+# Fidoo7 Driver - Production Dependencies
+# Pin versions for reproducibility and security
+
+# Core HTTP client library for making API requests
+# Includes urllib3 for connection pooling and retry strategies
+requests>=2.25.0,<3.0.0
+
+# URL/HTTP utilities for retry logic and connection pooling
+# (included with requests, but can be upgraded independently)
+urllib3>=1.26.0,<2.0.0
+
+# Optional: For async support (future enhancement)
+# aiohttp>=3.8.0,<4.0.0
+
+# Optional: For better YAML support
+# pyyaml>=6.0,<7.0.0

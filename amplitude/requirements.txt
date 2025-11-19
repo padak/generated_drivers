@@ -1,0 +1,28 @@
+# Amplitude Analytics Driver - Production Dependencies
+#
+# Install with: pip install -r requirements.txt
+#
+# Version specifications use semantic versioning:
+# - Major.Minor.Patch format
+# - ^X.Y.Z means >=X.Y.Z, <(X+1).0.0
+# - ~X.Y.Z means >=X.Y.Z, <X.(Y+1).0
+
+# Core HTTP client library
+# Required for: API requests, session management, retries
+requests>=2.28.0,<3.0.0
+
+# HTTPS/urllib3 support
+# Required for: SSL/TLS encryption, connection pooling
+urllib3>=1.26.0,<2.0.0
+
+# Development Dependencies (optional)
+# Uncomment to install: pip install -r requirements.txt[dev]
+#
+# [dev]
+# pytest>=7.0.0          # Testing framework
+# pytest-cov>=3.0.0      # Code coverage
+# black>=22.0.0          # Code formatter
+# pylint>=2.12.0         # Code linter
+# mypy>=0.910            # Type checker
+# isort>=5.10.0          # Import sorter
+# flake8>=4.0.0          # Style guide enforcement

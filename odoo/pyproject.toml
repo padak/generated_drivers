@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "odoo-driver"
+version = "1.0.0"
+description = "Production-grade Python driver for Odoo External RPC API (JSON-RPC 2.0)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Generated with Claude Code", email = "noreply@example.com"}
+]
+keywords = [
+    "odoo",
+    "erp",
+    "api",
+    "rpc",
+    "json-rpc",
+    "integration",
+    "business-automation"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Office/Business",
+    "Typing :: Typed"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.28.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0,<8.0.0",
+    "pytest-cov>=4.0.0,<5.0.0",
+    "black>=23.0.0,<24.0.0",
+    "flake8>=6.0.0,<7.0.0",
+    "mypy>=1.0.0,<2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/odoo-driver"
+Documentation = "https://github.com/yourusername/odoo-driver#readme"
+Repository = "https://github.com/yourusername/odoo-driver.git"
+Issues = "https://github.com/yourusername/odoo-driver/issues"
+Changelog = "https://github.com/yourusername/odoo-driver/releases"
+
+[tool.setuptools]
+packages = ["odoo_driver", "odoo_driver.examples"]
+package-data = {odoo_driver = ["py.typed"]}
+
+[tool.setuptools.package-data]
+odoo_driver = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | tests
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests", "examples"]
+python_files = ["test_*.py", "example_*.py"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["odoo_driver"]
+omit = [
+    "*/tests/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

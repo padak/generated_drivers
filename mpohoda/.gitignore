@@ -1,0 +1,353 @@
+# ============================================================================
+# Python
+# ============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ============================================================================
+# IDE / Editor
+# ============================================================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*~
+.*.swp
+.*.swo
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Atom
+.atom/
+
+# VS Code extensions
+.vscode-test/
+
+# ============================================================================
+# OS
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# ============================================================================
+# Project Specific
+# ============================================================================
+
+# Local development
+.local/
+local/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.old
+temp/
+tmp/
+
+# Test artifacts
+test-results/
+test-output/
+*.junit.xml
+
+# Documentation builds
+site/
+docs/_build/
+
+# IDE scratch files
+*.scratch
+*.playground
+
+# ============================================================================
+# Sensitive Files (NEVER COMMIT)
+# ============================================================================
+
+# Environment variables (contains credentials)
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Secrets and credentials
+.secrets
+secrets/
+credentials.json
+apikey.txt
+
+# Configuration with sensitive data
+config.local.ini
+config.*.ini
+
+# Logs with sensitive information
+*.log
+logs/
+
+# Database files with data
+*.db
+*.sqlite
+*.sqlite3
+database.db
+
+# ============================================================================
+# Build Output
+# ============================================================================
+
+# setuptools
+*.egg-info/
+dist/
+build/
+
+# pip
+*.whl
+*.tar.gz
+
+# Poetry
+poetry.lock
+
+# ============================================================================
+# Dependencies Cache
+# ============================================================================
+
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# ============================================================================
+# Documentation
+# ============================================================================
+
+# Sphinx
+docs/_build/
+docs/.sphinx/
+
+# MkDocs
+site/
+
+# Doxygen
+doxygen/
+
+# ============================================================================
+# Testing
+# ============================================================================
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# tox
+.tox/
+.nox/
+
+# Coverage reports
+coverage/
+cover/
+
+# Test reports
+test-results/
+xunit-results.xml
+
+# ============================================================================
+# CI/CD
+# ============================================================================
+
+# GitHub Actions
+.github/workflows/**/output/
+
+# GitLab CI
+.gitlab-ci.yml.local
+
+# ============================================================================
+# Virtual Environments (if not using standard names)
+# ============================================================================
+
+venv*/
+env*/
+ENV*/
+virtualenv*/
+
+# ============================================================================
+# Commented-Out Files
+# ============================================================================
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# ============================================================================
+# Exception: DO NOT IGNORE
+# ============================================================================
+
+# These files SHOULD be committed
+!.gitkeep
+!.editorconfig
+!.github/
+!.gitlab/
+!docs/
+!tests/
+!examples/
+!setup.py
+!pyproject.toml
+!README.md
+!LICENSE

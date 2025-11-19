@@ -1,0 +1,24 @@
+# Apify Driver - Production Dependencies
+# Generated: 2025-11-19
+# Version: 1.0.0
+
+# Core HTTP client library
+# Used for all REST API communication
+requests>=2.25.0,<3.0.0
+
+# Optional: Type checking support (for mypy, pyright, etc.)
+# Uncomment if using static type checking
+# typing-extensions>=4.0.0; python_version < '3.8'
+
+# Optional: Development and testing dependencies
+# Include with: pip install -e ".[dev]"
+# Handled in setup.py/pyproject.toml
+
+# Optional: Documentation building
+# Uncomment if building docs locally
+# sphinx>=4.0.0
+# sphinx-rtd-theme>=1.0.0
+
+# Version constraints explanation:
+# requests>=2.25.0  - Minimum version with good Python 3.6+ support
+# requests<3.0.0    - Don't auto-upgrade to breaking changes (when they come)

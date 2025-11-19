@@ -1,0 +1,39 @@
+# Odoo Driver - Production Dependencies
+# =======================================
+#
+# Core Requirements
+# -----------------
+# These dependencies are required for the Odoo driver to function
+
+# HTTP client library for API requests
+# https://requests.readthedocs.io/
+requests>=2.28.0,<3.0.0
+
+# Optional: For development and testing
+# Uncomment if installing in development mode
+
+# pytest>=7.0.0,<8.0.0          # Unit testing framework
+# pytest-cov>=4.0.0,<5.0.0      # Code coverage
+# black>=23.0.0,<24.0.0         # Code formatter
+# flake8>=6.0.0,<7.0.0          # Linter
+# mypy>=1.0.0,<2.0.0            # Type checker
+
+
+# Python Version Requirements
+# ============================
+# This driver requires Python 3.8 or higher
+# Tested on: Python 3.8, 3.9, 3.10, 3.11, 3.12
+
+
+# Installation Instructions
+# =========================
+#
+# Standard installation:
+#   pip install -r requirements.txt
+#
+# Development installation (with dev tools):
+#   pip install -r requirements.txt
+#   pip install pytest pytest-cov black flake8 mypy
+#
+# Or install directly from the package:
+#   pip install ./

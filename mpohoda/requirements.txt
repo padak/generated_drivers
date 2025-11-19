@@ -1,0 +1,31 @@
+# mPOHODA Driver Requirements
+#
+# Production dependencies for mPOHODA Python driver
+# Install with: pip install -r requirements.txt
+
+# HTTP library with automatic retries and connection pooling
+requests>=2.28.0,<3.0.0
+
+# urllib3 is installed with requests but explicitly pinned for SSL/TLS support
+urllib3>=1.26.0,<2.0.0
+
+# Python standard library (no install needed)
+# - logging (built-in)
+# - os (built-in)
+# - time (built-in)
+# - json (built-in)
+# - datetime (built-in)
+# - typing (built-in)
+# - abc (built-in)
+# - enum (built-in)
+# - dataclasses (built-in, Python 3.7+)
+
+# Development dependencies (optional)
+# Install with: pip install -r requirements-dev.txt
+# See: requirements-dev.txt
+
+# Notes:
+# - Requires Python 3.7 or higher
+# - requests: HTTP library with urllib3 for robust connections
+# - urllib3: SSL/TLS certificate verification and connection pooling
+# - Both maintain long-term support and security patches

@@ -1,0 +1,49 @@
+# mPOHODA Driver Development Requirements
+#
+# Install with: pip install -r requirements-dev.txt
+#
+# Includes testing, linting, type checking, and documentation tools
+
+# Include production requirements
+-r requirements.txt
+
+# Testing
+pytest>=7.0.0,<8.0.0
+pytest-cov>=4.0.0,<5.0.0
+pytest-mock>=3.10.0,<4.0.0
+pytest-asyncio>=0.20.0,<1.0.0 (optional for async tests)
+
+# Code Quality
+black>=22.0.0,<24.0.0
+isort>=5.10.0,<6.0.0
+flake8>=4.0.0,<5.0.0
+pylint>=2.13.0,<3.0.0
+
+# Type Checking
+mypy>=0.990,<1.0.0
+types-requests>=2.28.0
+
+# Documentation
+sphinx>=4.5.0,<6.0.0
+sphinx-rtd-theme>=1.0.0,<2.0.0
+sphinx-autodoc-typehints>=1.17.0,<2.0.0
+
+# Build Tools
+wheel>=0.37.0,<1.0.0
+twine>=4.0.0,<5.0.0
+setuptools>=65.0.0,<70.0.0
+setuptools_scm>=6.2,<8.0.0
+
+# Utility
+python-dotenv>=0.20.0,<1.0.0
+
+# Development Tools
+pre-commit>=2.17.0,<3.0.0
+
+# Notes:
+# - Run: pip install -r requirements-dev.txt
+# - Then: pre-commit install (for git hooks)
+# - Test: pytest tests/
+# - Format: black mpohoda/
+# - Type check: mypy mpohoda/
+# - Lint: pylint mpohoda/

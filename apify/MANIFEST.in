@@ -1,0 +1,46 @@
+# MANIFEST.in - Include additional files in package distribution
+# Generated: 2025-11-19
+
+# Include documentation files
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Include configuration files
+include setup.py
+include pyproject.toml
+include requirements.txt
+
+# Include example files
+recursive-include examples *.py
+recursive-include examples *.md
+
+# Exclude test and development files
+exclude pytest.ini
+exclude tox.ini
+exclude Makefile
+recursive-exclude tests *
+recursive-exclude .github *
+
+# Exclude version control and build artifacts
+global-exclude .git
+global-exclude .gitignore
+global-exclude .gitattributes
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude .tox
+global-exclude .mypy_cache
+global-exclude .coverage
+global-exclude .eggs
+global-exclude *.egg-info
+global-exclude dist
+global-exclude build
+
+# Exclude development files
+global-exclude .venv
+global-exclude venv
+global-exclude .env
+global-exclude .env.local
+global-exclude .DS_Store
+global-exclude Thumbs.db
