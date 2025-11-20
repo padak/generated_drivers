@@ -130,19 +130,28 @@ dmypy.json
 *~
 .DS_Store
 
-# OS
-Thumbs.db
-.DS_Store
-
 # Project specific
-*.tmp
-debug/
+*.orig
 temp/
-.fidoo_cache/
+tmp/
+backup/
+credentials/
+secrets/
 
-# Sensitive files
-.env
-.env.local
-.env.*.local
-secrets.json
-credentials.json
+# Local testing
+.pytest_cache/
+htmlcov/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor backups
+*.bak
+*.backup
+*.orig
+
+# Large files (optional - uncomment if needed)
+# *.zip
+# *.tar.gz
+# *.rar

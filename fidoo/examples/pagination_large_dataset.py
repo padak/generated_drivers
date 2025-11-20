@@ -1,77 +1,66 @@
-#!/usr/bin/env python3
 """
-Example: Process large dataset with pagination
+Example 2: Process large dataset with pagination
 
-This example demonstrates memory-efficient processing of large datasets
-using the read_batched() method with cursor-based pagination.
-
-Usage:
-    export FIDOO_API_KEY="your_api_key_here"
-    python pagination_large_dataset.py
+This example demonstrates:
+- Memory-efficient batched reading
+- Cursor-based pagination handling
+- Processing large datasets
+- Progress tracking
 """
 
-import sys
-from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from fidoo7 import Fidoo7Driver
-
-
-def process_batch(batch, batch_number):
-    """
-    Process a batch of records.
-
-    Args:
-        batch: List of records
-        batch_number: Batch number for tracking
-    """
-    print(f"\nBatch {batch_number}: {len(batch)} records")
-
-    # Process first few items as example
-    for item in batch[:3]:
-        print(f"  - {item}")
-
-    if len(batch) > 3:
-        print(f"  ... and {len(batch) - 3} more")
+from fidoo8 import Fidoo8Driver
 
 
 def main():
-    # Initialize client from environment
-    client = Fidoo7Driver.from_env()
+    """Process users in batches using cursor-based pagination"""
+
+    client = Fidoo8Driver.from_env()
 
     try:
-        print("Processing large dataset with pagination...")
-        print("=" * 60)
+        print("Processing users in batches...\n")
 
         total_processed = 0
-        batch_number = 0
+        batch_count = 0
 
-        # Use batched reading for memory efficiency
-        for batch in client.read_batched("user/get-users", batch_size=50):
-            batch_number += 1
-            total_processed += len(batch)
+        # read_batched handles pagination automatically
+        # Yields batches of records (memory-efficient)
+        for batch in client.read_batched("User", batch_size=50):
+            batch_count += 1
+            batch_size = len(batch)
+            total_processed += batch_size
 
-            # Process batch
-            process_batch(batch, batch_number)
+            print(f"Batch {batch_count}: {batch_size} users")
 
-            print(f"Total processed so far: {total_processed}")
+            # Process each user in batch
+            for user in batch:
+                process_user(user)
 
-        print("=" * 60)
-        print(f"\nProcessing complete!")
-        print(f"Total batches: {batch_number}")
-        print(f"Total records: {total_processed}")
+            print(f"Total processed so far: {total_processed}\n")
 
-    except Exception as e:
-        print(f"Error: {e}")
-        return 1
+        print(f"\nFinished!")
+        print(f"Total batches: {batch_count}")
+        print(f"Total users processed: {total_processed}")
 
     finally:
         client.close()
 
-    return 0
+
+def process_user(user):
+    """Process a single user record"""
+    # Your processing logic here
+    first_name = user.get('firstName', 'N/A')
+    last_name = user.get('lastName', 'N/A')
+    email = user.get('email', 'N/A')
+    status = user.get('userState', 'N/A')
+
+    # Example: print summary
+    if user.get('deactivated'):
+        status_marker = "[DEACTIVATED]"
+    else:
+        status_marker = ""
+
+    print(f"  → {first_name} {last_name} ({email}) {status_marker}")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

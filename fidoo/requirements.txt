@@ -1,16 +1,17 @@
-# Fidoo7 Driver - Production Dependencies
-# Pin versions for reproducibility and security
+# Fidoo8Driver - Python API Client
+# Core Dependencies with Version Constraints
 
-# Core HTTP client library for making API requests
-# Includes urllib3 for connection pooling and retry strategies
+# Required: HTTP client for API communication
 requests>=2.25.0,<3.0.0
 
-# URL/HTTP utilities for retry logic and connection pooling
-# (included with requests, but can be upgraded independently)
+# Optional: For better performance
 urllib3>=1.26.0,<2.0.0
 
-# Optional: For async support (future enhancement)
-# aiohttp>=3.8.0,<4.0.0
+# Development dependencies (optional, for testing/development)
+# pytest>=6.0.0,<7.0.0
+# pytest-cov>=2.10.0,<3.0.0
+# black>=21.0,<22.0
+# flake8>=3.9.0,<4.0.0
+# mypy>=0.910,<1.0
 
-# Optional: For better YAML support
-# pyyaml>=6.0,<7.0.0
+# Note: Python 3.6+ required
