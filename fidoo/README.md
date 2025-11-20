@@ -1,637 +1,584 @@
-# Fidoo8Driver - Python API Driver for Fidoo
+# Fidoo Driver
 
-Complete Python driver for [Fidoo Expense Management API](https://www.fidoo.com/support/expense-management-en/it-specialist/specifications-api/).
+Python API driver for the Fidoo Expense Management platform.
 
 ## Overview
 
-Fidoo is a comprehensive expense management platform for corporate finances. This driver provides seamless Python integration with Fidoo's complete API, enabling:
+Fidoo is a comprehensive expense management and corporate card platform. This driver provides programmatic access to:
 
-- **User Management**: Create, read, update, and delete users
-- **Card Operations**: Manage personal and shared prepaid cards
-- **Transaction Tracking**: Query and track all card transactions
-- **Expense Management**: Create, edit, and query expenses
-- **Travel Reports**: Manage travel requests and reports
-- **Personal Billing**: Handle expense settlements and personal billing
-- **System Settings**: Access cost centers, projects, account assignments, vehicles, and VAT configurations
+- User management (create, activate, deactivate users)
+- Card operations (get cards, load/unload funds, track balance)
+- Transaction monitoring (cards, cash, MVC account transactions)
+- Expense tracking and management
+- Travel and billing reports
+- Configuration management (cost centers, projects, VAT rates, vehicles)
+
+**API Documentation:** https://www.fidoo.com/expense-management/integrace/api
 
 ## Installation
 
 ```bash
-pip install fidoo8-driver
+pip install fidoo-driver
+```
+
+Or from source:
+
+```bash
+git clone <repo>
+cd fidoo
+pip install -e .
 ```
 
 ## Quick Start
 
-### Using Environment Variables (Recommended)
+### Environment Setup
+
+Set required environment variables:
 
 ```bash
-# Set API credentials
 export FIDOO_API_KEY="your_api_key_here"
-export FIDOO_BASE_URL="https://api.fidoo.com/v2"  # Optional, defaults to production
-
-# Run Python
-python
+# Optional:
+export FIDOO_BASE_URL="https://api.fidoo.com/v2"  # Production (default)
+export FIDOO_TIMEOUT="30"
+export FIDOO_DEBUG="false"
 ```
+
+### Basic Usage
 
 ```python
-from fidoo8 import Fidoo8Driver
+from fidoo import FidooDriver
 
-# Load from environment
-client = Fidoo8Driver.from_env()
-
-# Discover available objects
-objects = client.list_objects()
-print(f"Available objects: {objects}")
-
-# Get field schema
-fields = client.get_fields("User")
-print(f"User fields: {fields.keys()}")
-
-# Query users
-users = client.read("User", limit=50)
-print(f"Found {len(users)} users")
-
-# Cleanup
-client.close()
-```
-
-### Using Explicit Credentials
-
-```python
-from fidoo8 import Fidoo8Driver
-
-client = Fidoo8Driver(
-    base_url="https://api-demo.fidoo.com/v2",  # Demo environment
-    api_key="your_demo_api_key"
-)
-
-# Use the client...
-users = client.read("User")
-
-client.close()
-```
-
-## Authentication
-
-### Getting Your API Key
-
-1. Log in to your Fidoo application
-2. As Main Administrator, navigate to: **Settings → API Keys**
-3. Generate a new API key
-4. Copy the key and store it securely
-
-### Environment Variables
-
-Set these environment variables before running your code:
-
-```bash
-# Required
-FIDOO_API_KEY="your_api_key_here"
-
-# Optional (defaults shown)
-FIDOO_BASE_URL="https://api.fidoo.com/v2"       # Production API
-FIDOO_TIMEOUT="30"                               # Request timeout in seconds
-FIDOO_MAX_RETRIES="3"                            # Retries on rate limit
-FIDOO_DEBUG="false"                              # Enable debug logging
-```
-
-### Using Test Environment
-
-```python
-# Point to demo API
-client = Fidoo8Driver.from_env()
-# Or explicitly:
-client = Fidoo8Driver(
-    base_url="https://api-demo.fidoo.com/v2",
-    api_key=os.getenv("FIDOO_TEST_KEY")
-)
-```
-
-Request test credentials: [info@fidoo.com](mailto:info@fidoo.com)
-
-## Available Objects
-
-The driver supports querying these Fidoo objects:
-
-- **User** - User profiles and permissions
-- **Card** - Prepaid cards (personal and shared)
-- **Transaction** - Card transactions
-- **CardTransaction** - Detailed card transaction data
-- **Expense** - Expense reports
-- **ExpenseItem** - Individual expense line items
-- **CashTransaction** - Cash wallet transactions
-- **TravelReport** - Business travel reports
-- **TravelRequest** - Travel requests and pre-approvals
-- **TravelDetail** - Travel itinerary details
-- **PersonalBilling** - Personal expense settlements
-- **MVCTransaction** - Fidoo account transactions
-- **CostCenter** - Cost center configurations
-- **Project** - Project assignments
-- **AccountAssignment** - Account pre-configurations
-- **Vehicle** - Vehicle information
-- **VATBreakdown** - VAT breakdowns for accounting
-
-## Usage Patterns
-
-### Basic Query
-
-```python
-from fidoo8 import Fidoo8Driver
-
-client = Fidoo8Driver.from_env()
-
-# Query a single object
-users = client.read("User", limit=50)
-
-for user in users:
-    print(f"{user['firstName']} {user['lastName']} ({user['email']})")
-
-client.close()
-```
-
-### Pagination for Large Datasets
-
-```python
-# Process large datasets efficiently with batching
-client = Fidoo8Driver.from_env()
-
-total_processed = 0
-
-# read_batched yields batches (memory-efficient)
-for batch in client.read_batched("User", batch_size=50):
-    process_batch(batch)
-    total_processed += len(batch)
-    print(f"Processed {total_processed} users...")
-
-client.close()
-
-def process_batch(records):
-    """Process a batch of records"""
-    for record in records:
-        # Your processing logic here
-        pass
-```
-
-### Error Handling
-
-```python
-from fidoo8 import Fidoo8Driver
-from fidoo8.exceptions import (
-    ObjectNotFoundError,
-    RateLimitError,
-    AuthenticationError,
-)
-
-client = Fidoo8Driver.from_env()
+# Initialize from environment variables
+client = FidooDriver.from_env()
 
 try:
-    # Try to query an object
-    results = client.read("NonExistentObject")
+    # List available objects
+    objects = client.list_objects()
+    print(f"Available objects: {objects}")
 
-except ObjectNotFoundError as e:
-    # Handle missing object
-    print(f"Error: {e.message}")
-    print(f"Available objects: {e.details['available']}")
+    # Get schema for an object
+    fields = client.get_fields("user")
+    print(f"User fields: {fields}")
 
-    # Try with valid object
-    results = client.read("User", limit=10)
+    # Query data
+    users = client.read("user/get-users", limit=10)
+    print(f"Found {len(users)} users")
 
-except RateLimitError as e:
-    # Handle rate limiting
-    retry_after = e.details['retry_after']
-    print(f"Rate limited! Retry after {retry_after} seconds")
-    import time
-    time.sleep(retry_after)
-    results = client.read("User")
-
-except AuthenticationError as e:
-    # Handle auth failure
-    print(f"Authentication failed: {e.message}")
-    print("Check your FIDOO_API_KEY environment variable")
+    # Get cards
+    cards = client.read("card/get-cards", limit=50)
+    print(f"Found {len(cards)} cards")
 
 finally:
     client.close()
 ```
 
-### Working with Specific Objects
-
-#### Users
+### Explicit Credentials
 
 ```python
-client = Fidoo8Driver.from_env()
+from fidoo import FidooDriver
 
+client = FidooDriver(
+    api_key="your_api_key_here",
+    base_url="https://api.fidoo.com/v2",
+    timeout=30,
+    debug=False
+)
+
+try:
+    # Your code here
+    pass
+finally:
+    client.close()
+```
+
+## Authentication
+
+### Getting an API Key
+
+1. Log in to Fidoo with Main Administrator role
+2. Navigate to: Settings → Company → API Key Management
+3. Generate a new API key
+4. **Save immediately** - keys are only shown once
+5. Choose permissions:
+   - Read-only
+   - Read/Write
+
+### API Key Storage
+
+Store your API key securely using environment variables:
+
+```bash
+# .env file (never commit to git!)
+FIDOO_API_KEY=your_api_key_here
+```
+
+Load in your Python code:
+
+```python
+from fidoo import FidooDriver
+
+client = FidooDriver.from_env()
+```
+
+## API Reference
+
+### Core Methods
+
+#### `list_objects() -> List[str]`
+
+Discover available objects/endpoints.
+
+```python
+objects = client.list_objects()
+# Returns: ['user', 'card', 'transaction', 'expense', 'travel', 'settings', ...]
+```
+
+#### `get_fields(object_name: str) -> Dict[str, Any]`
+
+Get schema and available parameters for an object.
+
+```python
+fields = client.get_fields("card")
+# Returns:
+# {
+#   "endpoints": ["get-cards", "load-card", "unload-card", ...],
+#   "fields": {
+#       "userId": {"type": "string", "required": True},
+#       "cardId": {"type": "string", "required": False},
+#       "amount": {"type": "number", "required": False},
+#       "limit": {"type": "integer", "required": False, "default": 100, "max": 100},
+#       ...
+#   }
+# }
+```
+
+#### `read(query: str, limit: int = 100, offset: str = None) -> List[Dict[str, Any]]`
+
+Query data from an endpoint.
+
+**Parameters:**
+- `query` (str): Endpoint path (e.g., "user/get-users", "card/get-cards")
+- `limit` (int): Records per request (default: 100, max: 100)
+- `offset` (str): Pagination token (optional)
+
+**Returns:** List of records
+
+```python
 # Get all users
-users = client.read("User", limit=100)
+users = client.read("user/get-users", limit=100)
 
-# Get specific fields
-for user in users:
-    print(f"User: {user.get('firstName')} {user.get('lastName')}")
-    print(f"Email: {user.get('email')}")
-    print(f"Status: {user.get('userState')}")
-    print(f"Deactivated: {user.get('deactivated')}")
-    print()
+# Get cards for a specific user
+cards = client.read("card/get-cards", limit=50)
 
-client.close()
+# Get transactions for a card
+transactions = client.read(
+    "transaction/get-card-transactions",
+    limit=100
+)
 ```
 
-#### Cards
+#### `read_batched(query: str, batch_size: int = 100) -> Iterator[List[Dict]]`
+
+Read large datasets in memory-efficient batches.
 
 ```python
-client = Fidoo8Driver.from_env()
-
-# Get all cards
-cards = client.read("Card", limit=100)
-
-for card in cards:
-    print(f"Card: {card.get('embossName')}")
-    print(f"PAN: {card.get('maskedNumber')}")
-    print(f"Status: {card.get('cardState')}")
-    print(f"Type: {card.get('cardType')}")
-    print(f"Balance: {card.get('availableBalance')} CZK")
-    print()
-
-client.close()
+# Process 100,000 transactions in batches of 1,000
+for batch in client.read_batched("transaction/get-card-transactions", batch_size=100):
+    print(f"Processing batch with {len(batch)} records")
+    process_transactions(batch)
 ```
 
-#### Expenses
+#### `create(object_name: str, data: Dict[str, Any]) -> Dict[str, Any]`
+
+Create a new record.
 
 ```python
-client = Fidoo8Driver.from_env()
-
-# Get all expenses
-expenses = client.read("Expense", limit=50)
-
-for expense in expenses:
-    print(f"Expense: {expense.get('name')}")
-    print(f"Amount: {expense.get('amountCzk')} CZK")
-    print(f"Currency: {expense.get('currency')}")
-    print(f"State: {expense.get('state')}")
-    print(f"Created: {expense.get('dateTime')}")
-    print()
-
-client.close()
-```
-
-### Creating Records
-
-```python
-client = Fidoo8Driver.from_env()
-
-# Create a new user
-new_user = client.create("User", {
+new_user = client.create("user", {
     "firstName": "John",
     "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "phone": "+420123456789",
-    "employeeNumber": "EMP001"
+    "email": "john@example.com",
+    "active": True,
+    "usesApplication": True,
+    "language": "en"
 })
-
-print(f"Created user: {new_user['userId']}")
-
-client.close()
+# Returns: {"userId": "...", "firstName": "John", ...}
 ```
 
-### Updating Records
+#### `update(object_name: str, record_id: str, data: Dict[str, Any]) -> Dict[str, Any]`
+
+Update an existing record.
 
 ```python
-client = Fidoo8Driver.from_env()
-
-# Update an expense
-updated = client.update("Expense", "expense_id_here", {
-    "name": "Updated Expense Name",
-    "state": "approve"
+updated_expense = client.update("expense", expense_id, {
+    "name": "Updated expense name",
+    "externalReferenceId": "EXP-123"
 })
-
-print(f"Updated expense: {updated['expenseId']}")
-
-client.close()
 ```
 
-### Debug Mode
+#### `delete(object_name: str, record_id: str) -> bool`
+
+Delete a record.
+
+**⚠️ WARNING:** Require explicit user confirmation before deleting!
 
 ```python
-import logging
-
-# Enable debug logging to see all API calls
-client = Fidoo8Driver.from_env(debug=True)
-
-# This will log all HTTP requests and responses
-users = client.read("User", limit=5)
-
-client.close()
+# Ask user first!
+if user_confirms_deletion():
+    deleted = client.delete("user", user_id)
+    if deleted:
+        print("User deleted successfully")
 ```
 
-Output:
+#### `get_capabilities() -> DriverCapabilities`
+
+Get driver capabilities.
+
+```python
+caps = client.get_capabilities()
+print(f"Read: {caps.read}")           # True
+print(f"Write: {caps.write}")         # True
+print(f"Max page size: {caps.max_page_size}")  # 100
 ```
-[DEBUG] [POST] https://api.fidoo.com/v2/user/get-users params={'limit': 5}
+
+#### `call_endpoint(endpoint: str, method: str = "POST", params: Dict = None, data: Dict = None) -> Dict`
+
+Call API endpoint directly (low-level access).
+
+```python
+result = client.call_endpoint(
+    "/user/get-users",
+    method="GET"
+)
+
+# Or with POST
+result = client.call_endpoint(
+    "/card/get-cards",
+    method="POST",
+    data={"userId": "...", "limit": 10}
+)
+```
+
+#### `close()`
+
+Close connections and cleanup resources.
+
+```python
+client = FidooDriver.from_env()
+try:
+    # Use client
+    data = client.read("user/get-users")
+finally:
+    client.close()  # Always close!
+```
+
+## Available Objects & Endpoints
+
+### User Management
+
+- `user/get-user` - Get individual user
+- `user/get-users` - List all users
+- `user/get-user-by-email` - Find user by email
+- `user/get-user-by-employee-number` - Find user by employee ID
+- `user/add-user` - Create new user
+- `user/activate-user` - Activate user
+- `user/activate-application` - Grant app access
+- `user/deactivate-user` - Deactivate user
+- `user/delete-user` - Delete user
+
+### Card Operations
+
+- `card/get-cards` - List cards with balances
+- `card/load-card` - Add funds to card
+- `card/load-cards` - Batch load multiple cards
+- `card/load-status` - Check load status
+- `card/unload-card` - Remove funds from card
+- `card/unload-cards` - Batch unload multiple cards
+- `card/unload-status` - Check unload status
+
+### Transactions
+
+- `transaction/get-card-transactions` - Card transaction history
+- `cash-transactions/get-cash-transactions` - Wallet transactions
+- `mvc-transaction/get-transactions` - Fidoo account transactions
+
+### Expenses
+
+- `expense/get-expenses` - Retrieve expense records
+- `expense/get-expense-items` - Get line items
+- `expense/edit-expense` - Modify expense
+
+### Travel & Billing
+
+- `travel/get-travel-reports` - Business trip summaries
+- `travel/get-travel-requests` - Travel request status
+- `personal-billing/get-billings` - Billing records
+
+### Settings
+
+- `settings/get-cost-centers` - Cost center list
+- `settings/get-projects` - Project list
+- `settings/get-account-assignments` - Accounting mappings
+- `settings/get-vehicles` - Vehicle registry
+- `settings/get-vat-breakdowns` - VAT configurations
+
+## Capabilities
+
+This driver supports:
+
+- ✅ Read operations (query any endpoint)
+- ✅ Write operations (create records)
+- ✅ Update operations (modify records)
+- ✅ Delete operations (remove records)
+- ✅ Batch operations (load/unload multiple cards)
+- ✅ Pagination (offset token-based)
+- ✅ Error handling (structured exceptions)
+- ❌ Transactions (not at API level)
+
+## Common Patterns
+
+### Pagination for Large Datasets
+
+The API returns data in pages of up to 100 records. Use `read_batched()` for efficient processing:
+
+```python
+total_processed = 0
+
+for batch in client.read_batched("user/get-users", batch_size=100):
+    # Process each batch
+    for user in batch:
+        process_user(user)
+
+    total_processed += len(batch)
+    print(f"Processed {total_processed} users...")
+
+print(f"Complete! Total: {total_processed} users")
+```
+
+### Error Handling
+
+```python
+from fidoo import FidooDriver
+from fidoo.exceptions import ObjectNotFoundError, RateLimitError, AuthenticationError
+
+client = FidooDriver.from_env()
+
+try:
+    users = client.read("user/get-users")
+
+except AuthenticationError as e:
+    print(f"Auth error: {e.message}")
+    print(f"Check your API key: {e.details}")
+
+except RateLimitError as e:
+    print(f"Rate limited!")
+    print(f"Retry after {e.details['retry_after']} seconds")
+
+except ObjectNotFoundError as e:
+    print(f"Object not found: {e.message}")
+    print(f"Available: {e.details['available']}")
+
+finally:
+    client.close()
+```
+
+### Filtering and Pagination
+
+```python
+from datetime import datetime, timedelta
+
+# Get expenses from last 30 days
+thirty_days_ago = (datetime.now() - timedelta(days=30)).isoformat()
+
+# Query with date range
+expenses = client.read(
+    "expense/get-expenses",
+    limit=100,
+    # Note: Filtering is done via API parameters, not in driver
+)
+```
+
+### Batch Operations
+
+```python
+# Load funds to multiple cards at once
+for batch in cards:
+    batch_size = client.read(
+        "card/load-cards",
+        # Pass array of load operations
+    )
 ```
 
 ## Rate Limiting
 
-Fidoo API implements rate limiting. The driver automatically handles this:
+Fidoo API limits: **6,000 requests per customer per day**
 
-- **Automatic Retry**: Requests are retried with exponential backoff
-- **Max Retries**: Default 3 retries (configurable)
-- **Backoff**: 1s, 2s, 4s between attempts
-- **After Max Retries**: `RateLimitError` is raised
-
-### Handling Rate Limits
+The driver automatically retries failed requests with exponential backoff:
 
 ```python
-from fidoo8 import Fidoo8Driver
-from fidoo8.exceptions import RateLimitError
-import time
+# Check rate limit status (documentation only)
+status = client.get_rate_limit_status()
+print(f"Daily limit: {status['limit']} requests")
 
-client = Fidoo8Driver.from_env(max_retries=5)  # More aggressive retries
-
-try:
-    users = client.read("User", limit=1000)
-except RateLimitError as e:
-    wait_seconds = e.details['retry_after']
-    print(f"Rate limited! Waiting {wait_seconds} seconds...")
-    time.sleep(wait_seconds)
-    # Retry manually
-    users = client.read("User", limit=50)  # Smaller batch
-
-client.close()
+# If you hit the limit:
+# - Wait until next day
+# - Reduce batch size
+# - Increase delays between requests
 ```
 
-## Capabilities
+## Debug Mode
 
-Check what the driver supports:
+Enable debug logging to see all API calls:
 
 ```python
-client = Fidoo8Driver.from_env()
+import logging
 
-caps = client.get_capabilities()
-print(f"Read: {caps.read}")           # True
-print(f"Write: {caps.write}")         # True
-print(f"Update: {caps.update}")       # True
-print(f"Delete: {caps.delete}")       # True
-print(f"Pagination: {caps.pagination}") # PaginationStyle.CURSOR
-print(f"Max page size: {caps.max_page_size}") # 100
+# Enable debug output
+client = FidooDriver.from_env(debug=True)
 
-client.close()
+# Now you'll see:
+# [DEBUG] POST https://api.fidoo.com/v2/user/get-users
+# [DEBUG]   Payload: {"limit": 100}
 ```
 
-## Pagination
+Or via environment:
 
-The driver uses **cursor-based pagination** (token-based):
+```bash
+export FIDOO_DEBUG=true
+```
+
+## Configuration
+
+### Timeout
+
+Increase timeout for large datasets:
 
 ```python
-# Automatic pagination with read_batched
-for batch in client.read_batched("User", batch_size=50):
-    process(batch)  # Process 50 records at a time
-
-# Or manual pagination with read
-users = client.read("User", limit=50)  # Gets first 50
-# Returns all records up to API limits
+client = FidooDriver.from_env(timeout=60)  # 60 seconds
 ```
 
-### Pagination Parameters
+### Retry Attempts
 
-- **limit**: Records per request (1-100, default: 50)
-- **offsetToken**: Token for fetching next batch (automatic)
-- **nextOffsetToken**: Token in response for next batch (automatic)
+Configure automatic retry behavior:
 
-## Response Field Schema
-
-### User Fields
-
-```
-userId          string      Unique user identifier (UUID)
-firstName       string      User's first name
-lastName        string      User's last name
-email           string      User's email address
-phone           string      User's phone number
-employeeNumber  string      Employee number
-Position        string      User's position
-userState       enum        Status: active, deleted, new
-deactivated     boolean     Is user deactivated
-usesApplication boolean     Has app access
-kycStatus       enum        KYC status: unknown, ok, failed, refused
-language        string      Application language
-companyId       string      Company identifier
-LastModified    datetime    Last modification timestamp
+```python
+client = FidooDriver.from_env(max_retries=5)  # Retry up to 5 times
 ```
 
-### Card Fields
+### Alternative Base URL
 
-```
-cardId              string      Unique card identifier (UUID)
-cardState           enum        Status: first-ordered, active, hard-blocked, soft-blocked, expired
-cardType            enum        Type: personal, shared
-maskedNumber        string      Masked PAN (e.g., 549546******3575)
-embossName          string      Cardholder name on card
-alias               string      Optional card alias
-expiration          date        Card expiry date (YYYY-MM-DD)
-availableBalance    number      Available balance in CZK
-accountingBalance   number      Accounting balance
-blockedBalance      number      Sum of uncleared transactions
-userId              string      Card owner user ID
-connectedUserIds    string      Connected user IDs (team card, semicolon-separated)
-```
+Use the demo environment for testing:
 
-### Expense Fields
-
-```
-expenseId           string      Unique expense identifier
-ownerUserId         string      Expense owner user ID
-dateTime            datetime    Expense timestamp
-lastEditDateTime    datetime    Last edit timestamp
-name                string      Expense name
-amount              number      Expense amount
-amountCzk           number      Amount in CZK
-currency            string      Currency code (e.g., "CZK", "EUR")
-shortId             string      Short expense ID (e.g., "EX-10")
-state               enum        Status: prepare, approve, approve2, accountantApprove, personalBill, export, exported
-type                enum        Type: manual, card-transaction
-closed              boolean     Is expense closed
+```python
+client = FidooDriver(
+    api_key="demo_key",
+    base_url="https://api-demo.fidoo.com/v2"
+)
 ```
 
 ## Troubleshooting
 
-### Authentication Error
+### AuthenticationError: "Missing API key"
 
-```
-AuthenticationError: Invalid Fidoo API key
-```
+**Problem:** Driver can't find API key
 
-**Solutions:**
-1. Check FIDOO_API_KEY environment variable is set
-2. Verify API key is valid and not expired
-3. Request new API key from Fidoo admin interface
-4. Check API key has required permissions
-
-### Object Not Found
-
-```
-ObjectNotFoundError: Object 'Leads' not found
+**Solution:**
+```bash
+export FIDOO_API_KEY="your_api_key_here"
 ```
 
-**Solutions:**
-1. Check spelling (case-sensitive)
-2. Call `list_objects()` to see available objects
-3. Use exact object name from documentation
-
-### Rate Limit Exceeded
-
-```
-RateLimitError: API rate limit exceeded
+Or pass directly:
+```python
+client = FidooDriver(api_key="your_api_key_here")
 ```
 
-**Solutions:**
-1. Wait the time specified in error message
-2. Reduce batch size (use smaller `limit` values)
-3. Add delay between requests
-4. Increase max_retries: `Fidoo8Driver(max_retries=5)`
+### AuthenticationError: "Invalid API key"
 
-### Connection Error
+**Problem:** API key is incorrect or expired
 
-```
-ConnectionError: Cannot reach Fidoo API
-```
+**Solution:**
+1. Verify API key in Fidoo settings
+2. Generate a new API key if needed
+3. Check you're using the correct environment (production vs. demo)
 
-**Solutions:**
+### ConnectionError: "Cannot reach Fidoo API"
+
+**Problem:** Network connectivity issue or API is down
+
+**Solution:**
 1. Check internet connection
-2. Verify base_url is correct
-3. Check if Fidoo API is up (https://status.fidoo.com)
-4. Try demo API to test connectivity: https://api-demo.fidoo.com/v2
+2. Verify `base_url` is correct
+3. Check if Fidoo API is operational
+4. Try increasing timeout: `timeout=60`
 
-## API Reference
+### RateLimitError: "API rate limit exceeded"
 
-### Fidoo8Driver Methods
+**Problem:** Hit the 6,000 requests per day limit
 
-#### Constructor
+**Solution:**
+1. Wait until next day
+2. Reduce batch size
+3. Add delays between requests
+4. Contact Fidoo for higher limits
 
+### ValueError: "limit cannot exceed 100"
+
+**Problem:** Requested page size exceeds API maximum
+
+**Solution:**
 ```python
-Fidoo8Driver(
-    base_url: str = "https://api.fidoo.com/v2",
-    api_key: str = None,
-    timeout: int = 30,
-    max_retries: int = 3,
-    debug: bool = False
-)
+# Use default or smaller page size
+users = client.read("user/get-users", limit=100)  # Max is 100
 ```
 
-#### from_env()
+## Testing
+
+### Mock API Responses
 
 ```python
-@classmethod
-Fidoo8Driver.from_env() -> Fidoo8Driver
+from unittest.mock import patch, Mock
+
+@patch('fidoo.client.requests.request')
+def test_list_users(mock_request):
+    # Mock API response
+    mock_response = Mock()
+    mock_response.json.return_value = {
+        "data": [
+            {"userId": "1", "firstName": "John", "lastName": "Doe"},
+            {"userId": "2", "firstName": "Jane", "lastName": "Smith"}
+        ],
+        "complete": True
+    }
+    mock_request.return_value = mock_response
+
+    # Test
+    client = FidooDriver(api_key="test_key")
+    users = client.read("user/get-users")
+
+    assert len(users) == 2
+    assert users[0]["firstName"] == "John"
 ```
 
-Create driver from environment variables. Raises `AuthenticationError` if required env vars missing.
+## Examples
 
-#### get_capabilities()
+See `examples/` directory for complete scripts:
 
-```python
-get_capabilities() -> DriverCapabilities
-```
-
-Returns driver capabilities (read, write, update, delete, pagination style, etc.).
-
-#### list_objects()
-
-```python
-list_objects() -> List[str]
-```
-
-Get available objects (User, Card, Expense, etc.).
-
-#### get_fields()
-
-```python
-get_fields(object_name: str) -> Dict[str, Any]
-```
-
-Get field schema for an object.
-
-#### read()
-
-```python
-read(
-    query: str,
-    limit: int = 50,
-    offset: int = None
-) -> List[Dict[str, Any]]
-```
-
-Query an object (query is object name, not SQL).
-
-#### read_batched()
-
-```python
-read_batched(
-    query: str,
-    batch_size: int = 50
-) -> Iterator[List[Dict[str, Any]]]
-```
-
-Query with automatic batching (memory-efficient).
-
-#### create()
-
-```python
-create(object_name: str, data: Dict[str, Any]) -> Dict[str, Any]
-```
-
-Create new record.
-
-#### update()
-
-```python
-update(object_name: str, record_id: str, data: Dict[str, Any]) -> Dict[str, Any]
-```
-
-Update existing record.
-
-#### delete()
-
-```python
-delete(object_name: str, record_id: str) -> bool
-```
-
-Delete record.
-
-#### close()
-
-```python
-close()
-```
-
-Close session and cleanup.
-
-## DateTime Format
-
-All timestamps use ISO 8601 format with timezone:
-
-- `2022-09-17T13:28:35.382Z` (UTC)
-- `2022-09-17T13:28:35.382+02:00` (with timezone offset)
-
-## Currency and Numbers
-
-- **Currency amounts**: Decimal numbers (e.g., `450.00`)
-- **Currency field**: Specifies actual currency (e.g., `"CZK"`, `"EUR"`)
-- **Exchange rates**: High precision decimals (e.g., `23.4244`)
-- **VAT rates**: 0-1 decimal (e.g., `0.21` for 21%)
+- `list_all_users.py` - Query all users
+- `get_cards_by_user.py` - Get cards for specific user
+- `recent_transactions.py` - Get transactions from last 30 days
+- `batch_load_cards.py` - Load funds to multiple cards
+- `expense_report.py` - Generate expense report
 
 ## Support
 
-- **Documentation**: https://www.fidoo.com/support/expense-management-en/it-specialist/specifications-api/
-- **API Issues**: info@fidoo.com
-- **Test Environment**: Request from info@fidoo.com
+- **Documentation:** https://www.fidoo.com/expense-management/integrace/api
+- **API Swagger:** https://api-demo.fidoo.com/v2/swagger.json
+- **Issues:** Check existing issues in repository
 
 ## License
 
-This driver is provided as-is for use with the Fidoo API.
+MIT License - see LICENSE file for details
 
-## Contributing
+## Version
 
-For issues, feature requests, or improvements, please contact Fidoo support.
-
----
-
-**Driver Version:** 1.0.0
-**API Version:** v2
-**Last Updated:** 2025-11-19
+Driver Version: 1.0.0
+Fidoo API Version: v2

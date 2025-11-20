@@ -1,97 +1,97 @@
 """
-Example: Basic Usage - Query and Read Operations
+Example: Basic Usage Patterns
 
-This example demonstrates:
-- Loading credentials from environment
-- Discovering available objects
-- Querying objects
-- Processing results
+Demonstrates fundamental driver operations:
+- Initialization
+- Discovery (list available objects)
+- Schema retrieval (understand endpoints)
+- Simple queries
 - Resource cleanup
-
-Run:
-    export FIDOO_API_KEY="your_api_key_here"
-    python basic_usage.py
 """
 
-from fidoo8 import Fidoo8Driver
+import sys
+import os
+
+# Add parent directory to path for local imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from fidoo import FidooDriver
 
 
 def main():
     """Demonstrate basic driver usage"""
 
-    # Initialize driver from environment
-    # Requires: FIDOO_API_KEY environment variable
-    client = Fidoo8Driver.from_env()
+    print("=" * 70)
+    print("FIDOO DRIVER - BASIC USAGE EXAMPLE")
+    print("=" * 70)
+
+    # Step 1: Initialize driver from environment
+    print("\n1. Initializing driver from environment variables...")
+    client = FidooDriver.from_env()
+    print("   ✓ Driver initialized successfully")
 
     try:
-        # 1. Discover available objects
-        print("=" * 70)
-        print("STEP 1: Discover Available Objects")
-        print("=" * 70)
-
-        objects = client.list_objects()
-        print(f"\nAvailable objects in Fidoo API ({len(objects)} total):")
-        for i, obj in enumerate(objects, 1):
-            print(f"  {i:2d}. {obj}")
-
-        # 2. Get field schema for an object
-        print("\n" + "=" * 70)
-        print("STEP 2: Inspect Object Schema")
-        print("=" * 70)
-
-        fields = client.get_fields("User")
-        print(f"\nUser object has {len(fields)} fields:")
-        for field_name, field_info in list(fields.items())[:5]:  # Show first 5
-            field_type = field_info.get("type", "unknown")
-            description = field_info.get("description", "")
-            print(f"  {field_name:<25} {field_type:<15} {description}")
-        print(f"  ... and {len(fields) - 5} more fields")
-
-        # 3. Query an object
-        print("\n" + "=" * 70)
-        print("STEP 3: Query Users")
-        print("=" * 70)
-
-        users = client.read("User", limit=10)
-        print(f"\nFetched {len(users)} users:")
-        print()
-
-        for i, user in enumerate(users, 1):
-            first_name = user.get("firstName", "N/A")
-            last_name = user.get("lastName", "N/A")
-            email = user.get("email", "N/A")
-            status = user.get("userState", "N/A")
-            deactivated = user.get("deactivated", False)
-
-            status_marker = "[DEACTIVATED]" if deactivated else f"[{status.upper()}]"
-
-            print(f"  {i:2d}. {first_name} {last_name} ({email})")
-            print(f"      Status: {status_marker}")
-            print()
-
-        # 4. Get driver capabilities
-        print("=" * 70)
-        print("STEP 4: Check Driver Capabilities")
-        print("=" * 70)
-
+        # Step 2: Get driver capabilities
+        print("\n2. Checking driver capabilities...")
         caps = client.get_capabilities()
-        print(f"\nDriver Capabilities:")
-        print(f"  Read:               {caps.read}")
-        print(f"  Write:              {caps.write}")
-        print(f"  Update:             {caps.update}")
-        print(f"  Delete:             {caps.delete}")
-        print(f"  Pagination:         {caps.pagination.value}")
-        print(f"  Max page size:      {caps.max_page_size}")
-        print(f"  Batch operations:   {caps.batch_operations}")
+        print(f"   ✓ Read operations: {caps.read}")
+        print(f"   ✓ Write operations: {caps.write}")
+        print(f"   ✓ Update operations: {caps.update}")
+        print(f"   ✓ Delete operations: {caps.delete}")
+        print(f"   ✓ Max page size: {caps.max_page_size}")
+
+        # Step 3: List available objects
+        print("\n3. Discovering available objects...")
+        objects = client.list_objects()
+        print(f"   ✓ Found {len(objects)} object types:")
+        for obj in objects:
+            print(f"     - {obj}")
+
+        # Step 4: Get schema for specific object
+        print("\n4. Getting schema for 'user' object...")
+        fields = client.get_fields("user")
+        print(f"   ✓ Available endpoints: {fields.get('endpoints', [])}")
+        print(f"   ✓ Available fields:")
+        for field_name, field_info in fields.get("fields", {}).items():
+            field_type = field_info.get("type", "unknown")
+            required = field_info.get("required", False)
+            required_str = "[REQUIRED]" if required else "[optional]"
+            print(f"     - {field_name}: {field_type} {required_str}")
+
+        # Step 5: Simple read operation
+        print("\n5. Reading user data...")
+        users = client.read("user/get-users", limit=5)
+        print(f"   ✓ Retrieved {len(users)} users")
+        if users:
+            print(f"   ✓ Sample user:")
+            first_user = users[0]
+            print(f"     - ID: {first_user.get('userId', 'N/A')}")
+            print(f"     - Name: {first_user.get('firstName', 'N/A')} {first_user.get('lastName', 'N/A')}")
+            print(f"     - Email: {first_user.get('email', 'N/A')}")
+
+        # Step 6: Get rate limit status
+        print("\n6. Checking rate limit status...")
+        status = client.get_rate_limit_status()
+        print(f"   ✓ Daily limit: {status.get('limit')} requests")
+        print(f"   ✓ Period: {status.get('period')}")
 
         print("\n" + "=" * 70)
-        print("✅ Basic usage example completed successfully!")
+        print("✓ BASIC USAGE EXAMPLE COMPLETED SUCCESSFULLY")
         print("=" * 70)
+
+    except Exception as e:
+        print(f"\n✗ Error: {e}")
+        if hasattr(e, 'details'):
+            print(f"  Details: {e.details}")
+        return 1
 
     finally:
-        # Always close the client
+        print("\n7. Cleaning up...")
         client.close()
+        print("   ✓ Driver closed successfully")
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

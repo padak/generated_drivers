@@ -1,552 +1,537 @@
-# Fidoo8Driver Examples
+# FidooDriver Examples
 
-Comprehensive examples demonstrating all features of the Fidoo8Driver.
+Comprehensive collection of example scripts demonstrating driver usage patterns.
 
-## Quick Start
+## Quick Navigation
 
-### Prerequisites
+| Example | File | Purpose | Complexity |
+|---------|------|---------|-----------|
+| Basic Usage | `basic_usage.py` | Initialization, discovery, simple queries | ⭐ Beginner |
+| List Users | `list_all_users.py` | Query all users with basic filtering | ⭐ Beginner |
+| Error Handling | `error_handling.py` | Exception handling and recovery | ⭐⭐ Intermediate |
+| Get Cards | `get_user_cards.py` | Card operations and filtering | ⭐⭐ Intermediate |
+| Batch Processing | `batch_processing.py` | Large dataset pagination | ⭐⭐ Intermediate |
+| Write Operations | `write_operations.py` | Create, update, batch operations | ⭐⭐ Intermediate |
+| Debug Mode | `debug_mode.py` | Enable logging for troubleshooting | ⭐⭐ Intermediate |
+| Advanced Usage | `advanced_usage.py` | Complex workflows and optimization | ⭐⭐⭐ Advanced |
 
-Set up your API credentials:
+## Running Examples
+
+### Setup
 
 ```bash
+# Set environment variables
 export FIDOO_API_KEY="your_api_key_here"
-export FIDOO_BASE_URL="https://api.fidoo.com/v2"  # Or demo: https://api-demo.fidoo.com/v2
+
+# Optional
+export FIDOO_BASE_URL="https://api.fidoo.com/v2"
+export FIDOO_DEBUG="false"
+export FIDOO_TIMEOUT="30"
 ```
 
-### Running Examples
+### Run Example
 
 ```bash
-# Navigate to examples directory
-cd examples/
-
-# Run any example
+# From examples directory
 python basic_usage.py
-python error_handling.py
-python pagination.py
-python write_operations.py
-python advanced_usage.py
+
+# Or from project root
+python -m fidoo.examples.basic_usage
 ```
 
-## Examples Overview
+## Example Descriptions
 
-### 1. basic_usage.py - Getting Started
+### 1. basic_usage.py ⭐ Beginner
 
-**Topics:**
-- Initializing the driver
-- Discovering available objects
-- Inspecting object schemas
-- Simple queries
-- Checking driver capabilities
+**What it does:**
+- Initializes driver from environment
+- Checks capabilities
+- Discovers available objects
+- Retrieves object schema
+- Executes simple query
+- Checks rate limits
 
-**Key Methods:**
-- `list_objects()` - Get available objects
-- `get_fields()` - Get field schema
-- `get_capabilities()` - Check driver capabilities
-- `read()` - Query objects
-
-**Use When:**
-- Learning the driver
-- Understanding data structure
-- Planning queries
-- Checking what objects are available
-
-**Run:**
-```bash
-python basic_usage.py
+**Key patterns:**
+```python
+client = FidooDriver.from_env()
+objects = client.list_objects()
+fields = client.get_fields("user")
+users = client.read("user/get-users", limit=5)
+client.close()
 ```
 
-**Output:**
-```
-STEP 1: Discover Available Objects
-Available objects in Fidoo API (17 total):
-  1. User
-  2. Card
-  ...
-
-STEP 2: Inspect Object Schema
-User object has 14 fields:
-  userId                  string      Unique user identifier (UUID)
-  ...
-
-STEP 3: Query Users
-Fetched 10 users:
-  1. John Doe (john@example.com)
-  ...
-```
+**When to use:**
+- First time learning the driver
+- Understanding basic operations
+- Testing setup
 
 ---
 
-### 2. error_handling.py - Exception Management
+### 2. list_all_users.py ⭐ Beginner
 
-**Topics:**
-- Handling missing objects (ObjectNotFoundError)
-- Handling validation errors (ValidationError)
-- Handling rate limits (RateLimitError)
-- Handling authentication errors (AuthenticationError)
-- Handling connection errors (ConnectionError)
-- Retry strategies
-- Exception hierarchy
+**What it does:**
+- Lists all users
+- Handles pagination
+- Formats output
 
-**Key Methods:**
-- Exception handling with try/except
-- Error details inspection
-- Retry patterns
-- Safe query functions
+**Key patterns:**
+```python
+users = client.read("user/get-users", limit=100)
+for user in users:
+    print(f"{user['firstName']} {user['lastName']}")
+```
 
-**Exception Types:**
-- `ObjectNotFoundError` - Invalid object name
-- `ValidationError` - Invalid parameters
-- `RateLimitError` - Rate limit exceeded
-- `AuthenticationError` - Auth failed
-- `ConnectionError` - Network error
+**When to use:**
+- Learning query execution
+- Testing pagination
+- Verifying API access
+
+---
+
+### 3. error_handling.py ⭐⭐ Intermediate
+
+**What it does:**
+- Catches specific exceptions
+- Handles different error types
+- Provides recovery strategies
+- Demonstrates error details
+
+**Error types covered:**
+- `AuthenticationError` - Invalid credentials
+- `RateLimitError` - API quota exceeded
+- `ObjectNotFoundError` - Unknown object
+- `ConnectionError` - Network issues
+- `ValidationError` - Invalid data
 - `TimeoutError` - Request timeout
 
-**Use When:**
-- Building robust applications
-- Implementing retry logic
-- Debugging API issues
-- Understanding error responses
-
-**Run:**
-```bash
-python error_handling.py
-```
-
-**Output:**
-```
-EXAMPLE 1: Handle Missing Object
-Attempting to query non-existent object 'InvalidObject'...
-
-❌ ObjectNotFoundError
-   Message: Object 'InvalidObject' not found in Fidoo API
-   Available objects: ['User', 'Card', 'Transaction', ...]
-
-✅ Retrying with valid object 'User'...
-   Success! Got 5 users
-```
-
----
-
-### 3. pagination.py - Large Dataset Processing
-
-**Topics:**
-- Cursor-based pagination
-- Batch processing
-- Memory-efficient iteration
-- Progress tracking
-- Combining results from multiple batches
-- Performance optimization
-
-**Key Methods:**
-- `read_batched()` - Iterator for memory-efficient processing
-- `read()` - Get all results at once (returns complete set)
-- Manual batch collection
-
-**Use When:**
-- Processing large datasets (1000+ records)
-- Memory-constrained environments
-- Aggregating data across batches
-- Building real-time processing pipelines
-
-**Run:**
-```bash
-python pagination.py
-```
-
-**Output:**
-```
-EXAMPLE 1: Simple Batch Processing
-Processing users in batches of 50...
-
-Batch 1: 50 users
-Total so far: 50
-  1. John Doe
-  2. Jane Smith
-  3. Bob Johnson
-  ... and 47 more
-
-[Demo: stopping after 3 batches]
-
-✅ Processed 3 batches (150 total users)
-```
-
----
-
-### 4. write_operations.py - Create, Update, Delete
-
-**Topics:**
-- Creating new records
-- Updating existing records
-- Deleting records
-- Handling validation errors
-- Verifying results
-- Batch creation patterns
-- Best practices for write operations
-
-**Key Methods:**
-- `create()` - Create new records
-- `update()` - Update existing records
-- `delete()` - Delete records
-- `read()` - Verify operations
-
-**Supported Objects:**
-- User (create, delete)
-- Expense (update)
-- Others (depends on API permissions)
-
-**Use When:**
-- Automating data entry
-- Bulk importing data
-- Updating records
-- Data cleanup and maintenance
-
-**Run:**
-```bash
-python write_operations.py
-```
-
-**Output:**
-```
-EXAMPLE 1: Create a New User
-Creating new user...
-User data: {'firstName': 'John', 'lastName': 'Doe', ...}
-
-✅ User created successfully!
-   User ID: 30dcca40-9858-4139-9230-bb86d97cf64e
-   Name: John Doe
-   Email: john.doe@example.com
-```
-
-**⚠️ WARNING:** This example modifies data! Use with caution on production.
-
----
-
-### 5. advanced_usage.py - Complex Operations
-
-**Topics:**
-- Multi-object queries and correlation
-- Data aggregation and analytics
-- Time-series analysis
-- Custom filtering and transformation
-- Resilient data collection
-- Performance monitoring
-- Complex error handling
-
-**Patterns:**
-- Multi-object analysis
-- Aggregations (grouping, counting)
-- Statistics calculation
-- Resilient queries with retry
-- Memory-efficient processing
-- Performance monitoring
-
-**Use When:**
-- Building analytics dashboards
-- Automating complex workflows
-- Correlating data across objects
-- Optimizing performance
-- Building production applications
-
-**Run:**
-```bash
-python advanced_usage.py
-```
-
-**Output:**
-```
-EXAMPLE 1: Multi-Object Analysis
-Analyzing relationship between users and cards...
-  Loaded 50 users
-  Loaded 50 cards
-
-Card ownership analysis:
-  Users with cards: 42
-  Users without cards: 8
-
-Top card holder:
-  John Smith
-  Cards: 3
-    1. JOHN SMITH (active)
-    2. JOHN SMITH (active)
-    3. JOHN SMITH (soft-blocked)
-```
-
----
-
-## Pattern Reference
-
-### Query Pattern
-
+**Key patterns:**
 ```python
-from fidoo8 import Fidoo8Driver
-
-client = Fidoo8Driver.from_env()
 try:
-    # Query object
-    results = client.read("User", limit=50)
-
-    # Process results
-    for record in results:
-        print(record)
+    data = client.read(...)
+except AuthenticationError as e:
+    print(f"Error: {e.message}")
+    print(f"Details: {e.details}")
+except RateLimitError as e:
+    print(f"Retry in {e.details['retry_after']}s")
+except Exception as e:
+    print(f"Unexpected: {e}")
 finally:
     client.close()
 ```
 
-### Pagination Pattern
+**When to use:**
+- Production code
+- Graceful error handling
+- User feedback
 
+---
+
+### 4. get_user_cards.py ⭐⭐ Intermediate
+
+**What it does:**
+- Gets cards for a user
+- Displays card details
+- Shows balances
+
+**Key patterns:**
 ```python
-# Process large datasets efficiently
-for batch in client.read_batched("User", batch_size=50):
-    for record in batch:
-        process(record)
+cards = client.read("card/get-cards", limit=100)
+for card in cards:
+    print(f"Card: {card['embossedName']}")
+    print(f"Balance: {card['availableBalance']} CZK")
 ```
 
-### Error Handling Pattern
+**When to use:**
+- Card operations
+- Account information
+- Balance queries
 
+---
+
+### 5. batch_processing.py ⭐⭐ Intermediate
+
+**What it does:**
+- Processes large datasets
+- Uses `read_batched()` for memory efficiency
+- Shows progress
+
+**Key patterns:**
 ```python
-from fidoo8.exceptions import RateLimitError, ObjectNotFoundError
-
-try:
-    results = client.read("User")
-except ObjectNotFoundError as e:
-    print(f"Object not found: {e.details['available']}")
-except RateLimitError as e:
-    wait_time = e.details['retry_after']
-    time.sleep(wait_time)
-    results = client.read("User")
+for batch in client.read_batched("user/get-users", batch_size=100):
+    for user in batch:
+        process_user(user)
+    print(f"Processed {len(batch)} records")
 ```
 
-### Create Pattern
+**When to use:**
+- Large dataset queries (1000+ records)
+- Memory-constrained environments
+- Real-time processing
 
+---
+
+### 6. write_operations.py ⭐⭐ Intermediate
+
+**What it does:**
+- Creates new users
+- Updates existing records
+- Demonstrates batch operations
+- Shows error handling for writes
+
+**Key patterns:**
 ```python
-new_record = client.create("User", {
+# Create
+new_user = client.create("user", {
     "firstName": "John",
     "lastName": "Doe",
     "email": "john@example.com"
 })
-print(f"Created: {new_record['userId']}")
-```
 
-### Update Pattern
-
-```python
-updated = client.update("Expense", expense_id, {
-    "name": "Updated Name",
-    "state": "approve"
+# Update
+updated = client.update("expense", expense_id, {
+    "name": "New name"
 })
-print(f"Updated: {updated['expenseId']}")
+
+# Delete (requires confirmation)
+if user_confirms():
+    deleted = client.delete("user", user_id)
 ```
 
-### Delete Pattern
+**When to use:**
+- Creating records
+- Modifying data
+- Batch operations
+
+---
+
+### 7. debug_mode.py ⭐⭐ Intermediate
+
+**What it does:**
+- Enables debug logging
+- Shows all API calls
+- Displays request payloads
+
+**Key patterns:**
+```python
+client = FidooDriver.from_env(debug=True)
+
+# Now shows:
+# [DEBUG] POST https://api.fidoo.com/v2/user/get-users
+# [DEBUG]   Payload: {"limit": 100}
+```
+
+**When to use:**
+- Troubleshooting API issues
+- Understanding request/response flow
+- Debugging integration problems
+
+---
+
+### 8. advanced_usage.py ⭐⭐⭐ Advanced
+
+**What it does:**
+- Advanced filtering
+- Data transformation pipelines
+- Resilient querying with retry
+- Performance optimization
+- Multi-operation workflows
+
+**Key patterns:**
+
+**1. Advanced Filtering:**
+```python
+expenses = client.read("expense/get-expenses")
+recent = [e for e in expenses if is_recent(e)]
+```
+
+**2. Data Pipeline:**
+```python
+users = client.read("user/get-users")
+for user in users:
+    cards = client.read("card/get-cards")
+    user['total_balance'] = sum(c['balance'] for c in cards)
+```
+
+**3. Resilient Querying:**
+```python
+def query_with_retry(endpoint, max_attempts=3):
+    for attempt in range(max_attempts):
+        try:
+            return client.read(endpoint)
+        except RateLimitError:
+            time.sleep(5)
+        except ConnectionError:
+            continue
+```
+
+**4. Performance Optimization:**
+```python
+# Use batching for large datasets
+for batch in client.read_batched(endpoint, batch_size=100):
+    process(batch)
+
+# Cache schema
+schema = client.get_fields("user")
+```
+
+**When to use:**
+- Production systems
+- Complex data workflows
+- Performance-sensitive code
+
+---
+
+## Design Patterns Reference
+
+### 1. Discovery Pattern
 
 ```python
-success = client.delete("User", user_id)
-print(f"Deleted: {success}")
+# Always discover capabilities first
+objects = client.list_objects()
+fields = client.get_fields("user")
+caps = client.get_capabilities()
+```
+
+### 2. Resource Cleanup Pattern
+
+```python
+client = FidooDriver.from_env()
+try:
+    # Your code
+    pass
+finally:
+    client.close()
+```
+
+### 3. Error Handling Pattern
+
+```python
+try:
+    result = client.read(...)
+except RateLimitError as e:
+    wait = e.details['retry_after']
+except ValidationError as e:
+    details = e.details
+except Exception as e:
+    logger.error(f"Unexpected: {e}")
+```
+
+### 4. Pagination Pattern
+
+```python
+# For small datasets
+data = client.read(endpoint, limit=100)
+
+# For large datasets
+for batch in client.read_batched(endpoint, batch_size=100):
+    process(batch)
+```
+
+### 5. Batch Operations Pattern
+
+```python
+# Create multiple users
+for user_data in users_list:
+    client.create("user", user_data)
+
+# Load funds to multiple cards
+for card_id, amount in cards:
+    client.call_endpoint(
+        "/card/load-card",
+        method="POST",
+        data={"cardId": card_id, "amount": amount}
+    )
 ```
 
 ---
 
-## Common Tasks
+## Common Scenarios
 
-### Get All Users
+### Scenario 1: Export all users to CSV
 
 ```python
-users = client.read("User", limit=100)
+import csv
+
+client = FidooDriver.from_env()
+users = client.read("user/get-users", limit=10000)
+
+with open('users.csv', 'w') as f:
+    writer = csv.DictWriter(f, fieldnames=['userId', 'firstName', 'lastName', 'email'])
+    writer.writeheader()
+    for user in users:
+        writer.writerow(user)
+
+client.close()
 ```
 
-### Process Large User Dataset
+### Scenario 2: Get high-balance accounts
 
 ```python
-for batch in client.read_batched("User", batch_size=50):
-    process_batch(batch)
-```
+client = FidooDriver.from_env()
+cards = client.read("card/get-cards", limit=1000)
 
-### Create Multiple Users
-
-```python
-users_data = [
-    {"firstName": "A", "lastName": "B", "email": "a@example.com"},
-    {"firstName": "C", "lastName": "D", "email": "c@example.com"},
+high_balance = [
+    card for card in cards
+    if float(card.get('availableBalance', 0)) > 10000
 ]
 
-for data in users_data:
-    new_user = client.create("User", data)
-    print(f"Created: {new_user['userId']}")
+print(f"Accounts with >10k CZK: {len(high_balance)}")
+client.close()
 ```
 
-### Filter Records
+### Scenario 3: Archive old expenses
 
 ```python
-users = client.read("User", limit=100)
-active_users = [u for u in users if u.get('userState') == 'active']
-```
+from datetime import datetime, timedelta
 
-### Aggregate Data
+client = FidooDriver.from_env()
+cutoff_date = (datetime.now() - timedelta(days=365)).isoformat()
 
-```python
-expenses = client.read("Expense", limit=100)
+expenses = client.read("expense/get-expenses", limit=1000)
+old_expenses = [
+    e for e in expenses
+    if e.get('createdDate', '') < cutoff_date
+]
 
-total = sum(e.get('amountCzk', 0) for e in expenses)
-by_state = {}
-for expense in expenses:
-    state = expense.get('state')
-    by_state[state] = by_state.get(state, 0) + 1
-```
-
-### Safe Retry Query
-
-```python
-def safe_query(client, obj, limit=50, retries=3):
-    for attempt in range(retries):
-        try:
-            return client.read(obj, limit=limit)
-        except Exception as e:
-            if attempt < retries - 1:
-                time.sleep(2 ** attempt)
-            else:
-                raise
-```
-
----
-
-## Best Practices
-
-### 1. Always Use Context Management
-
-```python
-# ✓ Good
-try:
-    client = Fidoo8Driver.from_env()
-    results = client.read("User")
-finally:
-    client.close()
-
-# ✗ Bad
-client = Fidoo8Driver.from_env()
-results = client.read("User")
-# Client not closed!
-```
-
-### 2. Handle Errors Appropriately
-
-```python
-# ✓ Good
-try:
-    results = client.read(object_name)
-except ObjectNotFoundError:
-    # Get available objects and retry
-    print(client.list_objects())
-except RateLimitError as e:
-    # Wait and retry
-    time.sleep(e.details['retry_after'])
-
-# ✗ Bad
-results = client.read(object_name)  # No error handling
-```
-
-### 3. Use Batched Reading for Large Datasets
-
-```python
-# ✓ Good - Memory efficient
-for batch in client.read_batched("User", batch_size=50):
-    process_batch(batch)
-
-# ✗ Bad - Loads everything into memory
-all_users = client.read("User", limit=10000)
-for user in all_users:
-    process(user)
-```
-
-### 4. Validate Data Before Writing
-
-```python
-# ✓ Good
-user_data = {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com"
-}
-if all(user_data.values()):
-    new_user = client.create("User", user_data)
-
-# ✗ Bad
-client.create("User", {"firstName": "John"})  # Missing required fields
-```
-
-### 5. Test with Demo API First
-
-```bash
-# ✓ Good - Test in safe environment
-export FIDOO_BASE_URL="https://api-demo.fidoo.com/v2"
-python write_operations.py
-
-# ✗ Bad - Direct production use
-export FIDOO_BASE_URL="https://api.fidoo.com/v2"
-python write_operations.py
+print(f"Found {len(old_expenses)} expenses older than 1 year")
+client.close()
 ```
 
 ---
 
 ## Troubleshooting
 
-### "Missing Fidoo API key"
+### "ModuleNotFoundError: No module named 'fidoo'"
 
+**Solution:**
 ```bash
-# Set required environment variable
+# Add parent directory to PYTHONPATH
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/.."
+
+# Or run from parent directory
+python -m fidoo.examples.basic_usage
+```
+
+### "AuthenticationError: Missing API key"
+
+**Solution:**
+```bash
 export FIDOO_API_KEY="your_api_key_here"
 ```
 
-### "Object 'Users' not found"
+### "ConnectionError: Cannot reach Fidoo API"
 
-```python
-# Object names are case-sensitive
-client.read("User")  # ✓ Correct
-client.read("Users")  # ✗ Wrong
-client.read("USERS")  # ✗ Wrong
+**Solution:**
+```bash
+# Check API is reachable
+curl https://api.fidoo.com/v2/status/user-info \
+  -H "X-Api-Key: your_api_key"
 
-# List available objects
-print(client.list_objects())
+# Try demo environment
+export FIDOO_BASE_URL="https://api-demo.fidoo.com/v2"
 ```
 
-### "Rate limited!"
+### "RateLimitError: API rate limit exceeded"
 
+**Solution:**
 ```python
-# Use safe retry pattern
-try:
-    results = client.read("User")
-except RateLimitError as e:
-    wait_time = e.details['retry_after']
-    time.sleep(wait_time)
-    results = client.read("User")
-```
+# Use batch processing with delays
+import time
 
-### Timeout Errors
-
-```python
-# Increase timeout
-client = Fidoo8Driver(timeout=60)
-
-# Or reduce batch size
-results = client.read("User", limit=10)
+for batch in client.read_batched(endpoint, batch_size=50):
+    process(batch)
+    time.sleep(1)  # Add delay between batches
 ```
 
 ---
 
-## Next Steps
+## Testing Guide
 
-1. **Start with:** `basic_usage.py` - Learn the basics
-2. **Then try:** `pagination.py` - Handle larger datasets
-3. **Add error handling:** `error_handling.py` - Make it robust
-4. **Create data:** `write_operations.py` - Automate data entry
-5. **Advanced:** `advanced_usage.py` - Complex workflows
+### Run all examples
 
-## Support
+```bash
+for script in *.py; do
+    echo "Running $script..."
+    python "$script"
+    echo "---"
+done
+```
 
-- **Documentation:** See README.md
-- **API Reference:** https://www.fidoo.com/support/expense-management-en/it-specialist/specifications-api/
-- **Test Data:** Request from info@fidoo.com
-- **Issues:** Check error messages and troubleshooting section
+### Test with mocked API
+
+See `write_operations.py` for mock testing patterns:
+
+```python
+from unittest.mock import patch, Mock
+
+@patch('fidoo.client.requests.request')
+def test_example(mock_request):
+    # Setup mock
+    mock_response = Mock()
+    mock_response.json.return_value = {"data": [...]}
+    mock_request.return_value = mock_response
+
+    # Test
+    client = FidooDriver(api_key="test")
+    result = client.read(...)
+
+    assert len(result) > 0
+```
 
 ---
 
-**Ready to use Fidoo8Driver!** Start with `basic_usage.py` now.
+## Performance Tips
+
+1. **Use `read_batched()` for large datasets**
+   - More memory efficient
+   - Processes data incrementally
+
+2. **Set appropriate timeouts**
+   ```python
+   client = FidooDriver.from_env(timeout=60)
+   ```
+
+3. **Cache schema information**
+   ```python
+   user_schema = client.get_fields("user")  # Cache this
+   ```
+
+4. **Minimize API calls**
+   - Get data once, process multiple times
+   - Use pagination to avoid huge responses
+
+5. **Add delays for bulk operations**
+   ```python
+   import time
+   for item in items:
+       process(item)
+       time.sleep(0.1)  # Small delay between requests
+   ```
+
+---
+
+## Further Reading
+
+- **README.md** - Complete API reference
+- **03_quick_reference.md** - Quick lookup guide
+- **API Docs** - https://www.fidoo.com/expense-management/integrace/api
+- **API Swagger** - https://api-demo.fidoo.com/v2/swagger.json
+
+---
+
+## Contributing Examples
+
+To add new examples:
+
+1. Create new Python file in `examples/`
+2. Follow naming convention: `descriptive_name.py`
+3. Include docstring explaining the example
+4. Add error handling
+5. Test with real API
+6. Update this README with new example
+
+---
+
+**Last Updated:** 2025-11-20
+**Examples Status:** ✅ Complete & Tested
+**Total Examples:** 8

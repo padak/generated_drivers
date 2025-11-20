@@ -1,3 +1,10 @@
+# Fidoo Driver - Git Ignore Rules
+# Standard Python .gitignore with project-specific additions
+
+# ============================================================================
+# Python
+# ============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -122,36 +129,83 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDE
+# ============================================================================
+# Project-Specific
+# ============================================================================
+
+# Environment files (IMPORTANT: Protect credentials!)
+.env
+.env.local
+.env.*.local
+
+# IDE / Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
-
-# Project specific
-*.orig
-temp/
-tmp/
-backup/
-credentials/
-secrets/
-
-# Local testing
-.pytest_cache/
-htmlcov/
-
-# OS specific
-.DS_Store
 Thumbs.db
 
-# Editor backups
-*.bak
-*.backup
-*.orig
+# Test results and coverage
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.html
 
-# Large files (optional - uncomment if needed)
-# *.zip
-# *.tar.gz
-# *.rar
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Package lock files (use requirements.txt instead)
+Pipfile.lock
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE specific
+*.code-workspace
+.vscode/settings.json
+.idea/
+
+# Documentation
+site/
+docs/_build/
+
+# ============================================================================
+# Security: Always protect these
+# ============================================================================
+
+# Credentials and secrets
+*.key
+*.pem
+*.pfx
+*.p12
+secrets.txt
+config.local.py
+
+# API Keys and tokens
+.env
+.env.local
+credentials.json
+token.json
+
+# ============================================================================
+# But DO track these important files
+# ============================================================================
+
+!.gitignore
+!.env.example
+!requirements.txt
+!pyproject.toml
+!setup.py
+!README.md
+!.github/

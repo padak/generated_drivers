@@ -1,235 +1,219 @@
 """
-Example: Write Operations - Create, Update, Delete
+Example: Write Operations
 
-This example demonstrates:
-- Creating new records
+Demonstrates creating, updating, and deleting records:
+- Creating new users
 - Updating existing records
-- Deleting records
-- Handling validation errors
-- Verifying results
-
-Run:
-    export FIDOO_API_KEY="your_api_key_here"
-    python write_operations.py
-
-WARNING: This example modifies data!
-         Use with caution on production systems.
-         Consider using demo/test API first.
+- Handling write operation errors
+- Best practices for data modifications
 """
 
-from fidoo8 import Fidoo8Driver
-from fidoo8.exceptions import ValidationError, ObjectNotFoundError
+import sys
+import os
+from datetime import datetime
+
+# Add parent directory to path for local imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from fidoo import FidooDriver
+from fidoo.exceptions import ValidationError, AuthenticationError
+
+
+def create_user_example(client):
+    """Example: Create a new user"""
+    print("\n" + "=" * 70)
+    print("EXAMPLE 1: CREATE NEW USER")
+    print("=" * 70)
+
+    try:
+        # Create new user data
+        new_user = {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": f"john.doe.{datetime.now().timestamp()}@example.com",
+            "active": True,
+            "usesApplication": True,
+            "language": "en",
+            "position": "Software Engineer"
+        }
+
+        print(f"\nCreating user with data:")
+        for key, value in new_user.items():
+            print(f"  {key}: {value}")
+
+        # Create user
+        result = client.create("user", new_user)
+
+        print(f"\n✓ User created successfully!")
+        print(f"  User ID: {result.get('userId', 'N/A')}")
+        print(f"  Name: {result.get('firstName')} {result.get('lastName')}")
+        print(f"  Email: {result.get('email')}")
+
+        return result.get('userId')
+
+    except ValidationError as e:
+        print(f"\n✗ Validation Error: {e.message}")
+        print(f"  Details: {e.details}")
+        return None
+
+    except Exception as e:
+        print(f"\n✗ Error: {e}")
+        return None
+
+
+def update_expense_example(client):
+    """Example: Update an existing expense"""
+    print("\n" + "=" * 70)
+    print("EXAMPLE 2: UPDATE EXPENSE")
+    print("=" * 70)
+
+    try:
+        # First, get an expense to update
+        print("\nFetching existing expenses...")
+        expenses = client.read("expense/get-expenses", limit=1)
+
+        if not expenses:
+            print("  No expenses found to update (skipping example)")
+            return
+
+        expense = expenses[0]
+        expense_id = expense.get('expenseId', expense.get('id'))
+
+        print(f"\nFound expense: {expense_id}")
+        print(f"  Current name: {expense.get('name', 'N/A')}")
+
+        # Update expense
+        update_data = {
+            "name": f"Updated Expense - {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+            "externalReferenceId": f"EXP-{int(datetime.now().timestamp())}"
+        }
+
+        print(f"\nUpdating with:")
+        for key, value in update_data.items():
+            print(f"  {key}: {value}")
+
+        result = client.update("expense", expense_id, update_data)
+
+        print(f"\n✓ Expense updated successfully!")
+        print(f"  Expense ID: {result.get('expenseId', 'N/A')}")
+        print(f"  New name: {result.get('name', 'N/A')}")
+
+    except Exception as e:
+        print(f"\n✗ Error: {e}")
+        if hasattr(e, 'details'):
+            print(f"  Details: {e.details}")
+
+
+def batch_operations_example(client):
+    """Example: Batch operations (load multiple cards)"""
+    print("\n" + "=" * 70)
+    print("EXAMPLE 3: BATCH OPERATIONS")
+    print("=" * 70)
+
+    try:
+        # First, get some cards
+        print("\nFetching cards for batch operations...")
+        cards = client.read("card/get-cards", limit=2)
+
+        if len(cards) < 2:
+            print(f"  Not enough cards found (found {len(cards)}, need 2+) - skipping")
+            return
+
+        print(f"\n✓ Found {len(cards)} cards")
+
+        # Prepare batch load operations
+        batch_operations = []
+        for i, card in enumerate(cards):
+            card_id = card.get('cardId')
+            if card_id:
+                operation = {
+                    "cardId": card_id,
+                    "amount": 100.00 + (i * 50),  # Different amounts
+                    "message": f"Batch load #{i + 1}",
+                    "customerProcessId": f"BATCH-{int(datetime.now().timestamp())}-{i}"
+                }
+                batch_operations.append(operation)
+                print(f"  Card {i + 1}: Load {operation['amount']} CZK")
+
+        print(f"\nPrepared batch operations for {len(batch_operations)} cards")
+        print("Note: Actual batch operation would be executed via call_endpoint()")
+
+    except Exception as e:
+        print(f"\n✗ Error: {e}")
+
+
+def error_handling_example(client):
+    """Example: Handle errors during write operations"""
+    print("\n" + "=" * 70)
+    print("EXAMPLE 4: ERROR HANDLING FOR WRITE OPERATIONS")
+    print("=" * 70)
+
+    try:
+        # Try to create user with invalid data (missing required fields)
+        print("\nAttempting to create user with missing required fields...")
+
+        invalid_user = {
+            "firstName": "Jane"
+            # Missing: lastName (usually required)
+        }
+
+        result = client.create("user", invalid_user)
+        print(f"  Created: {result}")
+
+    except ValidationError as e:
+        print(f"\n✓ Caught validation error (as expected):")
+        print(f"  Error: {e.message}")
+        print(f"  Details: {e.details}")
+
+    except AuthenticationError as e:
+        print(f"\n✓ Caught authentication error:")
+        print(f"  Error: {e.message}")
+        print(f"  Solution: {e.details}")
+
+    except Exception as e:
+        print(f"\n✓ Caught unexpected error:")
+        print(f"  Type: {type(e).__name__}")
+        print(f"  Error: {e}")
 
 
 def main():
-    """Demonstrate write operations"""
+    """Run all write operation examples"""
 
-    client = Fidoo8Driver.from_env()
+    print("\n" + "=" * 70)
+    print("FIDOO DRIVER - WRITE OPERATIONS EXAMPLE")
+    print("=" * 70)
+
+    client = FidooDriver.from_env()
 
     try:
-        print("=" * 70)
-        print("WRITE OPERATIONS EXAMPLE - Create, Update, Delete")
-        print("=" * 70)
-
-        # Example 1: Create a new user
-        print("\n" + "=" * 70)
-        print("EXAMPLE 1: Create a New User")
-        print("=" * 70)
-
-        print("\nCreating new user...")
-        user_data = {
-            "firstName": "John",
-            "lastName": "Doe",
-            "email": "john.doe@example.com",
-            "phone": "+420123456789",
-            "employeeNumber": "EMP001",
-        }
-
-        print(f"User data: {user_data}")
-
-        try:
-            new_user = client.create("User", user_data)
-
-            print(f"\n✅ User created successfully!")
-            print(f"   User ID: {new_user.get('userId')}")
-            print(f"   Name: {new_user.get('firstName')} {new_user.get('lastName')}")
-            print(f"   Email: {new_user.get('email')}")
-
-        except ValidationError as e:
-            print(f"\n❌ Validation error: {e.message}")
-            print(f"   Details: {e.details}")
-
-        except Exception as e:
-            print(f"\n❌ Error creating user: {e}")
-
-        # Example 2: Update an expense
-        print("\n" + "=" * 70)
-        print("EXAMPLE 2: Update an Expense")
-        print("=" * 70)
-
-        print("\nFetching an expense to update...")
-        expenses = client.read("Expense", limit=1)
-
-        if expenses:
-            expense = expenses[0]
-            expense_id = expense.get("expenseId")
-
-            print(f"Found expense: {expense.get('name')}")
-            print(f"Current state: {expense.get('state')}")
-
-            # Update the expense
-            print(f"\nUpdating expense...")
-            update_data = {
-                "name": f"{expense.get('name')} [UPDATED]",
-                "state": "approve",  # Change state to approve
-            }
-
-            try:
-                updated = client.update("Expense", expense_id, update_data)
-
-                print(f"\n✅ Expense updated successfully!")
-                print(f"   New name: {updated.get('name')}")
-                print(f"   New state: {updated.get('state')}")
-
-            except ValidationError as e:
-                print(f"\n❌ Validation error: {e.message}")
-
-            except Exception as e:
-                print(f"\n❌ Error updating expense: {e}")
-
-        else:
-            print("ℹ️  No expenses found to update")
-
-        # Example 3: Delete a user (if supported)
-        print("\n" + "=" * 70)
-        print("EXAMPLE 3: Delete a User")
-        print("=" * 70)
-
-        print("\nNote: Delete operations should be used with caution!")
-        print("      This example demonstrates the API, but doesn't actually")
-        print("      delete anything for safety.")
-
-        print("\nDelete capability check:")
+        # Get driver capabilities
         caps = client.get_capabilities()
-        if caps.delete:
-            print(f"✅ Driver supports delete operations")
 
-            # Example: how you would delete
-            print(f"\nHow to delete a user:")
-            print(f"  user_id = 'some_user_id'")
-            print(f"  success = client.delete('User', user_id)")
+        if not caps.write:
+            print("\n✗ Driver does not support write operations")
+            return 1
 
-        else:
-            print(f"❌ Driver does not support delete operations")
+        print("\n✓ Driver supports write operations")
 
-        # Example 4: Batch data creation pattern
-        print("\n" + "=" * 70)
-        print("EXAMPLE 4: Batch Creation Pattern")
-        print("=" * 70)
-
-        print("\nDemonstrating batch creation pattern...")
-
-        users_to_create = [
-            {
-                "firstName": "Alice",
-                "lastName": "Smith",
-                "email": "alice.smith@example.com",
-                "employeeNumber": "EMP002",
-            },
-            {
-                "firstName": "Bob",
-                "lastName": "Johnson",
-                "email": "bob.johnson@example.com",
-                "employeeNumber": "EMP003",
-            },
-            {
-                "firstName": "Carol",
-                "lastName": "Williams",
-                "email": "carol.williams@example.com",
-                "employeeNumber": "EMP004",
-            },
-        ]
-
-        print(f"\nCreating {len(users_to_create)} users...")
-
-        created_count = 0
-        failed_count = 0
-        created_users = []
-
-        for user_data in users_to_create:
-            try:
-                print(f"\n  Creating: {user_data['firstName']} {user_data['lastName']}")
-                new_user = client.create("User", user_data)
-                print(f"    ✅ Created (ID: {new_user.get('userId')})")
-                created_users.append(new_user)
-                created_count += 1
-
-            except ValidationError as e:
-                print(f"    ❌ Validation error: {e.message}")
-                failed_count += 1
-
-            except Exception as e:
-                print(f"    ❌ Error: {e}")
-                failed_count += 1
-
-        print(f"\n✅ Batch creation result:")
-        print(f"   Created: {created_count}")
-        print(f"   Failed: {failed_count}")
-
-        # Example 5: Verify write operations
-        print("\n" + "=" * 70)
-        print("EXAMPLE 5: Verify Write Operations")
-        print("=" * 70)
-
-        print("\nRead operations are used to verify writes:")
-
-        print("\n1. Get all users (verify creation):")
-        users = client.read("User", limit=10)
-        print(f"   ✅ Total users: {len(users)}")
-
-        print("\n2. Get expenses (verify updates):")
-        expenses = client.read("Expense", limit=10)
-        print(f"   ✅ Total expenses: {len(expenses)}")
-
-        print("\n3. Get cards (other object):")
-        cards = client.read("Card", limit=10)
-        print(f"   ✅ Total cards: {len(cards)}")
+        # Run examples
+        create_user_example(client)
+        update_expense_example(client)
+        batch_operations_example(client)
+        error_handling_example(client)
 
         print("\n" + "=" * 70)
-        print("✅ Write operations examples completed!")
+        print("✓ WRITE OPERATIONS EXAMPLES COMPLETED")
         print("=" * 70)
 
-        print("\nBest Practices for Write Operations:")
-        print("""
-1. Validate data before creating/updating
-   - Check required fields are present
-   - Validate data types and formats
-   - Handle validation errors gracefully
-
-2. Always verify results after write
-   - Query the record after creation
-   - Confirm all fields were set correctly
-   - Check related records if applicable
-
-3. Handle errors appropriately
-   - Catch ValidationError for data issues
-   - Catch ConnectionError for transient failures
-   - Implement retry logic for transient errors
-
-4. Use transactions if available
-   - Batch related operations together
-   - Ensure consistency across multiple records
-   - Rollback on error
-
-5. Log all write operations
-   - Record what was created/updated
-   - Log timestamps and user info
-   - Maintain audit trail for compliance
-        """)
+    except Exception as e:
+        print(f"\n✗ Fatal error: {e}")
+        return 1
 
     finally:
         client.close()
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
